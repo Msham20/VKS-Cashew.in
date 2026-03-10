@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Invoice - <%= order.id %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <style>
+      .invoice-page {
+        max-width: 800px;
+        margin: 1.5rem auto;
+        background: #fffdf7;
+        padding: 1.8rem 1.8rem 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+      }
+      .invoice-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.4rem;
+      }
+      .invoice-shop {
+        font-size: 0.9rem;
+      }
+      .invoice-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+      }
+      .invoice-meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        font-size: 0.88rem;
+        margin-bottom: 1.2rem;
+      }
+      .invoice-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+      }
+      .invoice-table th,
+      .invoice-table td {
+        padding: 0.45rem 0.4rem;
+        border-bottom: 1px solid #ecd2ae;
+      }
+      .invoice-total-row td {
+        font-weight: 700;
+      }
+      .invoice-footer {
+        margin-top: 1.2rem;
+        font-size: 0.8rem;
+        color: #7b5d3b;
+      }
+      @media print {
+        body {
+          background: #fff;
+        }
+        .invoice-page {
+          box-shadow: none;
+          margin: 0;
+          border-radius: 0;
+        }
+        .no-print {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="invoice-page">
+      <div class="invoice-header">
+        <div>
+          <div class="invoice-title">Invoice</div>
+          <div style="font-size: 0.85rem; margin-top: 0.3rem">
+            Order ID: <strong><%= order.id %></strong>
+          </div>
+        </div>
+        <div class="invoice-shop">
+          <strong><%= (settings && settings.shopName) || 'Casheew Nuts & Dry Fruits' %></strong><br />
+          <%= (settings && settings.address) || 'Chennai, India' %><br />
+          GSTIN:
+          <strong><%= (settings && settings.gstin) || '' %></strong><br />
+          Phone:
+          <strong><%= (settings && settings.phone) || '' %></strong>
+        </div>
+      </div>
+
+      <div class="invoice-meta">
+        <div>
+          <strong>Bill To</strong><br />
+          <%= order.customerName %><br />
+          <%= order.phone %><br />
+          <% if (order.address) { %>
+          <div><%= order.address %></div>
+          <% } %>
+        </div>
+        <div>
+          <strong>Date</strong><br />
+          <%= new Date(order.createdAt).toLocaleDateString() %><br />
+          <strong>Type:</strong>
+          <%= order.orderType === 'wholesale' ? 'Wholesale (Bulk)' : 'Retail' %>
+        </div>
+      </div>
+
+      <table class="invoice-table">
+        <thead>
+          <tr>
+            <th style="width: 45%">Item</th>
+            <th style="width: 15%">Qty (kg)</th>
+            <th style="width: 20%">Rate (₹/kg)</th>
+            <th style="width: 20%" class="text-right">Amount (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% order.items.forEach(function(i) { 
+               const p = products.find(function(prod) { return prod.id === i.productId; });
+               const rate = p ? (order.orderType === 'wholesale' ? p.wholesalePricePerKg : p.retailPricePerKg) : 0;
+               const lineTotal = rate * i.quantityKg;
+          %>
+          <tr>
+            <td><%= i.name %></td>
+            <td><%= i.quantityKg %></td>
+            <td>₹<%= rate.toFixed(2) %></td>
+            <td class="text-right">₹<%= lineTotal.toFixed(2) %></td>
+          </tr>
+          <% }) %>
+          <tr class="invoice-total-row">
+            <td colspan="3" class="text-right">Total</td>
+            <td class="text-right">₹<%= order.totalPrice.toFixed(2) %></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="invoice-footer">
+        This is a system-generated invoice. Final confirmation of payment and any applicable taxes /
+        shipping charges will be shared by our team on WhatsApp.<br />
+        Thank you for shopping with Casheew.
+      </div>
+
+      <div class="no-print" style="margin-top: 1.2rem; text-align: right">
+        <button class="btn btn-primary" onclick="window.print()">Print / Save as PDF</button>
+      </div>
+    </div>
+  </body>
+</html>
+

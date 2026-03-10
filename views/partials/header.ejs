@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title || 'Casheew - Premium Cashew Nuts' %></title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <header class="site-header">
+        <div class="header-inner">
+          <a href="/" class="brand">
+            <div class="brand-logo">C</div>
+            <div class="brand-text">
+              <span class="brand-name">CASHEEW</span>
+              <span class="brand-tagline">Premium Cashew Nuts</span>
+            </div>
+          </a>
+
+          <button
+            class="nav-toggle"
+            aria-label="Toggle navigation"
+            onclick="document.querySelector('.main-nav').classList.toggle('open')"
+          >
+            ☰
+          </button>
+
+          <nav class="main-nav">
+            <a href="/" class="<%= active === 'home' ? 'active' : '' %>">Home</a>
+            <a href="/products" class="<%= active === 'products' ? 'active' : '' %>">Products</a>
+            <a href="/order" class="<%= active === 'order' ? 'active' : '' %>">Wholesale & Retail</a>
+            <a href="/track" class="<%= active === 'track' ? 'active' : '' %>">Track Order</a>
+            <a href="/about" class="<%= active === 'about' ? 'active' : '' %>">About</a>
+            <a href="/order" class="nav-cta">
+              <span class="icon">🛒</span>
+              Order Now
+            </a>
+          </nav>
+        </div>
+      </header>
+
+      <main>

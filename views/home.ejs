@@ -1,0 +1,125 @@
+<%- include('partials/header', { title: 'Casheew - Premium Quality Cashew Nuts', active: 'home' }) %>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <h1>
+        Premium Quality
+        <span class="highlight">Cashew Nuts</span>
+      </h1>
+      <p class="hero-subtitle">
+        Fresh, handpicked cashews from trusted farms – available for both
+        <strong>wholesale</strong> and <strong>retail</strong> orders.
+      </p>
+
+      <div class="hero-badges">
+        <span class="hero-badge">Fresh Stock</span>
+        <span class="hero-badge">Best Price</span>
+        <span class="hero-badge">Bulk &amp; Retail</span>
+        <span class="hero-badge">Fast Dispatch</span>
+      </div>
+
+      <div class="hero-actions">
+        <a href="/products" class="btn btn-primary">Shop Now</a>
+        <a
+          href="https://wa.me/<%= whatsappNumber %>"
+          target="_blank"
+          rel="noopener"
+          class="btn btn-outline"
+        >
+          Order on WhatsApp
+        </a>
+      </div>
+    </div>
+
+    <aside class="hero-side-card">
+      <h2>Today’s Popular Picks</h2>
+      <ul class="hero-side-list">
+        <% products.slice(0, 4).forEach(function(p) { %>
+        <li>
+          <span class="icon">✔</span>
+          <span>
+            <strong><%= p.name %></strong><br />
+            Retail from ₹<%= p.retailPricePerKg %> / kg
+          </span>
+        </li>
+        <% }) %>
+      </ul>
+    </aside>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title">Our Products</h2>
+    <p class="section-subtitle">
+      Choose from premium grades – perfect for snacking, gifting, and bulk packing.
+    </p>
+  </div>
+
+  <div class="products-grid">
+    <% products.forEach(function(p) { %>
+    <article class="product-card">
+      <div class="product-media">
+        <% const homeImgSrc = p.image && p.image.startsWith('/uploads/') ? p.image : '/images/cashew-hero.png'; %>
+        <img src="<%= homeImgSrc %>" alt="<%= p.name %>" />
+      </div>
+      <div class="product-body">
+        <h3 class="product-name"><%= p.name %></h3>
+        <p class="product-desc"><%= p.description %></p>
+        <div class="product-meta">
+          <span><strong>Retail</strong>: ₹<%= p.retailPricePerKg %> / kg</span>
+          <span><strong>Wholesale</strong>: ₹<%= p.wholesalePricePerKg %> / kg</span>
+        </div>
+        <div class="product-footer">
+          <span class="tag-chip <%= p.isBulkOffer ? 'bulk' : '' %>">
+            <%= p.isBulkOffer ? 'Bulk Offer' : 'Fresh Stock' %>
+          </span>
+          <a href="/order" class="link">Order Now →</a>
+        </div>
+      </div>
+    </article>
+    <% }) %>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title">Why Choose Casheew?</h2>
+  </div>
+  <div class="features-row">
+    <div class="feature-card">
+      <div class="feature-icon">✅</div>
+      <h3>Fresh Stock</h3>
+      <p>Carefully stored to keep the natural crunch and flavour.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💰</div>
+      <h3>Best Price</h3>
+      <p>Direct sourcing helps us give you better wholesale &amp; retail prices.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🚚</div>
+      <h3>Fast Delivery</h3>
+      <p>Quick dispatch for both local and bulk shipments.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📦</div>
+      <h3>Bulk Orders</h3>
+      <p>Special slabs and offers for orders above 5 kg.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wholesale-strip">
+  <div class="wholesale-inner">
+    <div class="wholesale-text">
+      <h3>Wholesale Orders – Save More in Bulk</h3>
+      <p>Minimum bulk order starts from 5 kg. Get special pricing for traders, shops &amp; events.</p>
+    </div>
+    <a href="/order" class="btn btn-primary">Contact for Bulk</a>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
+

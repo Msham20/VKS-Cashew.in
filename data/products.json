@@ -1,0 +1,29 @@
+[
+  {
+    "id": "P001",
+    "name": "Whole Cashew (W320)",
+    "description": "Premium whole cashew nuts, perfect for snacking.",
+    "image": "/uploads/product-1772906189487.jpg",
+    "retailPricePerKg": 900,
+    "wholesalePricePerKg": 820,
+    "isBulkOffer": false
+  },
+  {
+    "id": "P002",
+    "name": "Roasted Salted Cashew",
+    "description": "Crispy roasted cashews with light salt.",
+    "image": "/uploads/product-1772906214103.jpg",
+    "retailPricePerKg": 950,
+    "wholesalePricePerKg": 870,
+    "isBulkOffer": true
+  },
+  {
+    "id": "P003",
+    "name": "split Cashew",
+    "description": "high quality spllit cashews.",
+    "image": "/uploads/product-1772906239191.jpg",
+    "retailPricePerKg": 980,
+    "wholesalePricePerKg": 900,
+    "isBulkOffer": true
+  }
+]

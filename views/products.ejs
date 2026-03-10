@@ -1,0 +1,76 @@
+<%- include('partials/header', { title: 'Products - Casheew', active: 'products' }) %>
+
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title">Our Cashew Range</h2>
+    <p class="section-subtitle">
+      Premium grades for snacking, gifting, repacking and wholesale supply.
+    </p>
+  </div>
+
+  <div class="products-grid">
+    <% products.forEach(function(p) { %>
+    <article class="product-card">
+      <div class="product-media">
+        <% const productImgSrc = p.image && p.image.startsWith('/uploads/') ? p.image : '/images/cashew-hero.png'; %>
+        <img src="<%= productImgSrc %>" alt="<%= p.name %>" />
+      </div>
+      <div class="product-body">
+        <h3 class="product-name"><%= p.name %></h3>
+        <p class="product-desc"><%= p.description %></p>
+        <div class="product-meta">
+          <span><strong>Retail</strong>: ₹<%= p.retailPricePerKg %> / kg</span>
+          <span><strong>Wholesale</strong>: ₹<%= p.wholesalePricePerKg %> / kg</span>
+        </div>
+        <div class="product-footer">
+          <span class="tag-chip <%= p.isBulkOffer ? 'bulk' : '' %>">
+            <%= p.isBulkOffer ? 'Bulk Offer' : 'Fresh Stock' %>
+          </span>
+          <a href="/order?type=<%= p.isBulkOffer ? 'wholesale' : 'retail' %>" class="link">
+            Order <%= p.isBulkOffer ? 'Wholesale' : 'Retail' %> →
+          </a>
+        </div>
+      </div>
+    </article>
+    <% }) %>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title">Special Bulk Offers</h2>
+    <p class="section-subtitle">
+      Best suited for supermarkets, retailers, gifting companies and events.
+    </p>
+  </div>
+
+  <% if (bulkOffers.length) { %>
+  <div class="products-grid">
+    <% bulkOffers.forEach(function(p) { %>
+    <article class="product-card">
+      <div class="product-media">
+        <% const bulkImgSrc = p.image && p.image.startsWith('/uploads/') ? p.image : '/images/cashew-hero.png'; %>
+        <img src="<%= bulkImgSrc %>" alt="<%= p.name %>" />
+      </div>
+      <div class="product-body">
+        <h3 class="product-name"><%= p.name %></h3>
+        <p class="product-desc"><%= p.description %></p>
+        <div class="product-meta">
+          <span><strong>Wholesale</strong>: ₹<%= p.wholesalePricePerKg %> / kg</span>
+          <span class="help-text">Special slabs available above 25 kg.</span>
+        </div>
+        <div class="product-footer">
+          <span class="tag-chip bulk">Bulk Offer</span>
+          <a href="/order?type=wholesale" class="link">Enquire on WhatsApp →</a>
+        </div>
+      </div>
+    </article>
+    <% }) %>
+  </div>
+  <% } else { %>
+  <p>No bulk offers marked yet. Please check again later.</p>
+  <% } %>
+</section>
+
+<%- include('partials/footer') %>
+

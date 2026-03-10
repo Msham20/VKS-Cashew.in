@@ -1,0 +1,29 @@
+<%- include('partials/header', { title: 'Admin Login - Casheew', active: null }) %>
+
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title">Admin Login</h2>
+    <p class="section-subtitle">
+      Restricted area – only for shop owner / staff to manage prices and orders.
+    </p>
+  </div>
+
+  <div class="form-card" style="max-width: 480px">
+    <% if (error) { %>
+    <div class="error-message"><%= error %></div>
+    <% } %>
+
+    <form method="post" action="/admin/login">
+      <div class="form-group">
+        <label for="password">Admin Password</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Login</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
+

@@ -1,0 +1,113 @@
+[
+  {
+    "id": "CSH260306-3700",
+    "customerName": "Sujan garami Sujan",
+    "phone": "07904112829",
+    "email": "",
+    "address": "22old madras road, kottakuppam near , miracle school",
+    "orderType": "retail",
+    "items": [
+      {
+        "productId": "P001",
+        "name": "Whole Cashew (W320)",
+        "quantityKg": 2
+      },
+      {
+        "productId": "P002",
+        "name": "Roasted Salted Cashew",
+        "quantityKg": 5
+      }
+    ],
+    "totalKg": 7,
+    "totalPrice": 6550,
+    "status": "Pending",
+    "createdAt": "2026-03-06T17:13:44.831Z"
+  },
+  {
+    "id": "CSH260307-2684",
+    "customerName": "sham",
+    "phone": "7305177530",
+    "email": "",
+    "address": "22old madras road, kottakuppam near , miracle school",
+    "orderType": "wholesale",
+    "items": [
+      {
+        "productId": "P001",
+        "name": "Whole Cashew (W320)",
+        "quantityKg": 10
+      },
+      {
+        "productId": "P002",
+        "name": "Roasted Salted Cashew",
+        "quantityKg": 2
+      },
+      {
+        "productId": "P003",
+        "name": "split Cashew",
+        "quantityKg": 18
+      }
+    ],
+    "totalKg": 30,
+    "totalPrice": 26140,
+    "status": "Confirmed",
+    "createdAt": "2026-03-07T18:00:32.357Z"
+  },
+  {
+    "id": "CSH260307-5006",
+    "customerName": "Sujan garami Sujan",
+    "phone": "07904112829",
+    "email": "",
+    "address": "22old madras road, kottakuppam near , miracle school",
+    "orderType": "retail",
+    "items": [
+      {
+        "productId": "P001",
+        "name": "Whole Cashew (W320)",
+        "quantityKg": 52
+      },
+      {
+        "productId": "P002",
+        "name": "Roasted Salted Cashew",
+        "quantityKg": 6
+      },
+      {
+        "productId": "P003",
+        "name": "split Cashew",
+        "quantityKg": 5
+      }
+    ],
+    "totalKg": 63,
+    "totalPrice": 57400,
+    "status": "Pending",
+    "createdAt": "2026-03-07T18:17:10.297Z"
+  },
+  {
+    "id": "CSH260307-4574",
+    "customerName": "Sujan garami Sujan",
+    "phone": "07904112829",
+    "email": "",
+    "address": "22old madras road, kottakuppam near , miracle school",
+    "orderType": "retail",
+    "items": [
+      {
+        "productId": "P001",
+        "name": "Whole Cashew (W320)",
+        "quantityKg": 77
+      },
+      {
+        "productId": "P002",
+        "name": "Roasted Salted Cashew",
+        "quantityKg": 55
+      },
+      {
+        "productId": "P003",
+        "name": "split Cashew",
+        "quantityKg": 1
+      }
+    ],
+    "totalKg": 133,
+    "totalPrice": 122530,
+    "status": "Pending",
+    "createdAt": "2026-03-07T18:20:14.785Z"
+  }
+]

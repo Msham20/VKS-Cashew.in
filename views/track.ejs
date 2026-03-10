@@ -1,0 +1,61 @@
+<%- include('partials/header', { title: 'Track Order - Casheew', active: 'track' }) %>
+
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title">Track Your Order</h2>
+    <p class="section-subtitle">
+      Enter the <strong>Order ID</strong> shared with you on WhatsApp to see the current status.
+    </p>
+  </div>
+
+  <div class="form-card">
+    <form method="post" action="/track">
+      <div class="form-group">
+        <label for="orderId">Order ID</label>
+        <input
+          type="text"
+          id="orderId"
+          name="orderId"
+          placeholder="Example: CSH2603-1234"
+          required
+        />
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Check Status</button>
+      </div>
+    </form>
+
+    <% if (order) { %>
+    <div style="margin-top: 1.5rem">
+      <h3>Order Details</h3>
+      <p>
+        <strong>Order ID:</strong> <%= order.id %><br />
+        <strong>Name:</strong> <%= order.customerName %><br />
+        <strong>Phone:</strong> <%= order.phone %><br />
+        <strong>Type:</strong> <%= order.orderType === 'wholesale' ? 'Wholesale (Bulk)' : 'Retail' %><br />
+        <strong>Status:</strong>
+        <span class="badge <%= order.status.toLowerCase() %>"><%= order.status %></span>
+      </p>
+      <h4 style="margin-top: 0.8rem">Items</h4>
+      <ul class="hero-side-list">
+        <% order.items.forEach(function(i) { %>
+        <li>
+          <span class="icon">✔</span>
+          <span><strong><%= i.name %></strong> – <%= i.quantityKg %> kg</span>
+        </li>
+        <% }) %>
+      </ul>
+      <p class="help-text" style="margin-top: 0.8rem">
+        For any changes or queries, please reply to your WhatsApp order conversation.
+      </p>
+    </div>
+    <% } else if (notFound) { %>
+    <div class="error-message" style="margin-top: 1rem">
+      We could not find an order with that ID. Please check and try again.
+    </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
+

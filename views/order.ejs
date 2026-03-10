@@ -1,0 +1,111 @@
+<%- include('partials/header', { title: 'Order Online - Casheew', active: 'order' }) %>
+
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title">Place Your Order</h2>
+    <p class="section-subtitle">
+      Choose between <strong>Retail</strong> and <strong>Wholesale</strong> orders. Wholesale
+      (bulk) orders have a minimum combined quantity of <strong>5 kg</strong>.
+    </p>
+  </div>
+
+  <div class="form-card">
+    <% if (error) { %>
+    <div class="error-message"><%= error %></div>
+    <% } %>
+
+    <form method="post" action="/order">
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label for="customerName">Full Name</label>
+          <input type="text" id="customerName" name="customerName" required />
+        </div>
+        <div class="form-group">
+          <label for="phone">Mobile Number</label>
+          <input type="tel" id="phone" name="phone" required />
+        </div>
+        <div class="form-group">
+          <label for="email">Email (optional)</label>
+          <input type="email" id="email" name="email" />
+        </div>
+        <div class="form-group">
+          <label for="address">Delivery Address</label>
+          <textarea id="address" name="address" required></textarea>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Order Type</label>
+        <div class="radio-row">
+          <label>
+            <input
+              type="radio"
+              name="orderType"
+              value="retail"
+              checked
+            />
+            Retail
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="orderType"
+              value="wholesale"
+            />
+            Wholesale (Bulk)
+          </label>
+        </div>
+        <p class="help-text">
+          For wholesale orders, the combined quantity must be at least
+          <strong>5 kg</strong>.
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label>Products &amp; Quantity (kg)</label>
+        <table class="order-products-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Retail / kg</th>
+              <th>Wholesale / kg</th>
+              <th class="text-right">Qty (kg)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% products.forEach(function(p) { %>
+            <tr>
+              <td><%= p.name %></td>
+              <td>₹<%= p.retailPricePerKg %></td>
+              <td>₹<%= p.wholesalePricePerKg %></td>
+              <td class="text-right">
+                <input
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  name="qty_<%= p.id %>"
+                  style="width: 70px"
+                />
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+        <p class="help-text">
+          Note: Prices shown are indicative. Final confirmation will be shared on WhatsApp.
+        </p>
+      </div>
+
+      <div class="form-actions">
+        <div class="help-text">
+          After submitting, your order summary will be generated and you can
+          <strong>directly continue the conversation on WhatsApp</strong>.
+        </div>
+        <button type="submit" class="btn btn-primary">Place Order</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
+

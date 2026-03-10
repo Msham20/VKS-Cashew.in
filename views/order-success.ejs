@@ -1,0 +1,88 @@
+<%- include('partials/header', { title: 'Order Placed - Casheew', active: 'order' }) %>
+
+<section class="section">
+  <div class="form-card">
+    <div class="section-header" style="margin-bottom: 1.2rem">
+      <h2 class="section-title">Thank You! Your Order is Recorded.</h2>
+      <p class="section-subtitle">
+        Step 1: <strong>Scan &amp; pay using the QR below.</strong><br />
+        Step 2: After payment, click <strong>View Invoice</strong> to get your bill.
+      </p>
+    </div>
+    <div class="success-message">
+      <strong>Order ID:</strong> <%= order.id %><br />
+      Please save this ID to <strong>track your order</strong> later.
+    </div>
+
+    <% if (settings && settings.paymentQrImage) { %>
+    <div class="form-grid-2" style="margin-top: 0.3rem; align-items: center">
+      <div class="form-group">
+        <h3>Scan to Pay</h3>
+        <p class="help-text">
+          You can scan this QR to make your payment. Our team will verify and confirm on
+          WhatsApp.
+        </p>
+        <% if (settings.paymentNote) { %>
+        <p class="help-text"><strong>Note:</strong> <%= settings.paymentNote %></p>
+        <% } %>
+      </div>
+      <div class="form-group" style="text-align: center">
+        <img
+          src="<%= settings.paymentQrImage %>"
+          alt="Payment QR"
+          style="max-width: 260px; border-radius: 0.8rem; background: #fff; padding: 0.4rem"
+        />
+      </div>
+    </div>
+    <% } %>
+
+    <div class="form-grid-2" style="margin-top: 1.4rem">
+      <div class="form-group">
+        <h3>Customer Details</h3>
+        <p>
+          <strong>Name:</strong> <%= order.customerName %><br />
+          <strong>Phone:</strong> <%= order.phone %><br />
+          <% if (order.email) { %>
+          <strong>Email:</strong> <%= order.email %><br />
+          <% } %>
+          <strong>Order Type:</strong> <%= order.orderType === 'wholesale' ? 'Wholesale (Bulk)' : 'Retail' %>
+        </p>
+      </div>
+
+      <div class="form-group">
+        <h3>Order Summary</h3>
+        <p>
+          <% order.items.forEach(function(i) { %>
+          <div>
+            <strong><%= i.name %></strong> – <%= i.quantityKg %> kg
+          </div>
+          <% }) %>
+        </p>
+        <p class="help-text">
+          Approximate total: ₹<%= order.totalPrice.toFixed(2) %> (final price will be confirmed).
+        </p>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a href="<%= whatsappLink %>" target="_blank" rel="noopener" class="btn btn-primary">
+        Continue on WhatsApp
+      </a>
+      <div>
+        <a
+          href="/invoice/<%= order.id %>"
+          target="_blank"
+          rel="noopener"
+          class="btn btn-outline"
+          style="color: #2e7d32; border-color: #2e7d32"
+        >
+          View Invoice
+        </a>
+        <a href="/track" class="link">Track this order →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
+

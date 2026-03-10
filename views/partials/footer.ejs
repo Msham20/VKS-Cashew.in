@@ -1,0 +1,38 @@
+      </main>
+
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <div class="footer-contact">
+            <span>
+              <span class="icon">📞</span>
+              <span><%= (settings && settings.phone) || '+91 98765 43210' %></span>
+            </span>
+            <span>
+              <span class="icon">✉️</span>
+              <span><%= (settings && settings.email) || 'support@casheew.in' %></span>
+            </span>
+            <span>
+              <span class="icon">📍</span>
+              <span><%= (settings && settings.address) || 'Chennai, India' %></span>
+            </span>
+          </div>
+          <div class="footer-meta">
+            © <%= new Date().getFullYear() %> Casheew. Fresh • Natural • Quality.
+          </div>
+        </div>
+      </footer>
+
+      <div class="whatsapp-float">
+        <a
+          href="https://wa.me/<%= whatsappNumber %>"
+          target="_blank"
+          rel="noopener"
+          aria-label="Chat on WhatsApp"
+        >
+          ☎
+        </a>
+      </div>
+    </div>
+  </body>
+</html>
+
