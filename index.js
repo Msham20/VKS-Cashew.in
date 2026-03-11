@@ -4,6 +4,7 @@ const fs = require('fs');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const multer = require('multer');
+const { connectToDatabase } = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -149,23 +150,46 @@ app.use(
   })
 );
 
-app.use((req, res, next) => {
+let db;
+async function initDb() {
+  db = await connectToDatabase();
+}
+initDb();
+
+app.use(async (req, res, next) => {
   res.locals.isAdmin = !!req.session.isAdmin;
   const envWhatsapp = process.env.WHATSAPP_NUMBER;
-  const settings = readSettings();
+  
+  let settings;
+  if (db) {
+    settings = await db.collection('settings').findOne({}) || {};
+  } else {
+    settings = readSettings();
+  }
+  
   res.locals.settings = settings;
   res.locals.whatsappNumber =
     (settings && settings.whatsappNumber) || envWhatsapp || 'YOURNUMBER';
   next();
 });
 
-app.get('/', (req, res) => {
-  const products = readJson(PRODUCTS_FILE);
+app.get('/', async (req, res) => {
+  let products;
+  if (db) {
+    products = await db.collection('products').find().toArray();
+  } else {
+    products = readJson(PRODUCTS_FILE);
+  }
   res.render('home', { products });
 });
 
-app.get('/products', (req, res) => {
-  const products = readJson(PRODUCTS_FILE);
+app.get('/products', async (req, res) => {
+  let products;
+  if (db) {
+    products = await db.collection('products').find().toArray();
+  } else {
+    products = readJson(PRODUCTS_FILE);
+  }
   const bulkOffers = products.filter((p) => p.isBulkOffer);
   res.render('products', { products, bulkOffers });
 });
@@ -174,14 +198,24 @@ app.get('/about', (req, res) => {
   res.render('about');
 });
 
-app.get('/order', (req, res) => {
-  const products = readJson(PRODUCTS_FILE);
+app.get('/order', async (req, res) => {
+  let products;
+  if (db) {
+    products = await db.collection('products').find().toArray();
+  } else {
+    products = readJson(PRODUCTS_FILE);
+  }
   res.render('order', { products, error: null });
 });
 
-app.post('/order', (req, res) => {
+app.post('/order', async (req, res) => {
   const { customerName, phone, email, address, orderType } = req.body;
-  const products = readJson(PRODUCTS_FILE);
+  let products;
+  if (db) {
+    products = await db.collection('products').find().toArray();
+  } else {
+    products = readJson(PRODUCTS_FILE);
+  }
 
   const items = products
     .map((p) => {
@@ -218,7 +252,6 @@ app.post('/order', (req, res) => {
     totalPrice += pricePerKg * item.quantityKg;
   });
 
-  const orders = readJson(ORDERS_FILE);
   const newOrder = {
     id: generateOrderId(),
     customerName,
@@ -232,10 +265,22 @@ app.post('/order', (req, res) => {
     status: 'Pending',
     createdAt: new Date().toISOString()
   };
-  orders.push(newOrder);
-  writeJson(ORDERS_FILE, orders);
 
-  const settings = readSettings();
+  if (db) {
+    await db.collection('orders').insertOne(newOrder);
+  } else {
+    const orders = readJson(ORDERS_FILE);
+    orders.push(newOrder);
+    writeJson(ORDERS_FILE, orders);
+  }
+
+  let settings;
+  if (db) {
+    settings = await db.collection('settings').findOne({}) || {};
+  } else {
+    settings = readSettings();
+  }
+  
   const envWhatsapp = process.env.WHATSAPP_NUMBER;
   const whatsappNumber =
     (settings && settings.whatsappNumber) || envWhatsapp || 'YOURNUMBER';
@@ -257,25 +302,38 @@ app.get('/track', (req, res) => {
   res.render('track', { order: null, notFound: false });
 });
 
-app.post('/track', (req, res) => {
+app.post('/track', async (req, res) => {
   const { orderId } = req.body;
-  const orders = readJson(ORDERS_FILE);
-  const order = orders.find((o) => o.id === orderId.trim());
+  let order;
+  if (db) {
+    order = await db.collection('orders').findOne({ id: orderId.trim() });
+  } else {
+    const orders = readJson(ORDERS_FILE);
+    order = orders.find((o) => o.id === orderId.trim());
+  }
   res.render('track', {
     order: order || null,
     notFound: !order
   });
 });
 
-app.get('/invoice/:id', (req, res) => {
+app.get('/invoice/:id', async (req, res) => {
   const { id } = req.params;
-  const orders = readJson(ORDERS_FILE);
-  const products = readJson(PRODUCTS_FILE);
-  const order = orders.find((o) => o.id === id);
+  let order, products, settings;
+  
+  if (db) {
+    order = await db.collection('orders').findOne({ id: id });
+    products = await db.collection('products').find().toArray();
+    settings = await db.collection('settings').findOne({}) || {};
+  } else {
+    order = readJson(ORDERS_FILE).find((o) => o.id === id);
+    products = readJson(PRODUCTS_FILE);
+    settings = readSettings();
+  }
+
   if (!order) {
     return res.status(404).send('Invoice not found');
   }
-  const settings = readSettings();
   res.render('invoice', { order, products, settings });
 });
 
@@ -305,10 +363,18 @@ app.get('/admin/logout', (req, res) => {
   });
 });
 
-app.get('/admin', requireAdmin, (req, res) => {
-  const products = readJson(PRODUCTS_FILE);
-  const orders = readJson(ORDERS_FILE);
-  const settings = readSettings();
+app.get('/admin', requireAdmin, async (req, res) => {
+  let products, orders, settings;
+  if (db) {
+    products = await db.collection('products').find().toArray();
+    orders = await db.collection('orders').find().toArray();
+    settings = await db.collection('settings').findOne({}) || {};
+  } else {
+    products = readJson(PRODUCTS_FILE);
+    orders = readJson(ORDERS_FILE);
+    settings = readSettings();
+  }
+  
   const today = formatDate(new Date());
   const todaysOrders = orders.filter(
     (o) => formatDate(new Date(o.createdAt)) === today
@@ -322,40 +388,63 @@ app.get('/admin', requireAdmin, (req, res) => {
   });
 });
 
-app.post('/admin/products/:id', requireAdmin, (req, res) => {
+app.post('/admin/products/:id', requireAdmin, async (req, res) => {
   const { id } = req.params;
   const { name, description, retailPricePerKg, wholesalePricePerKg, isBulkOffer } =
     req.body;
-  const products = readJson(PRODUCTS_FILE);
-  const product = products.find((p) => p.id === id);
-  if (product) {
-    if (name) {
-      product.name = name;
+    
+  if (db) {
+    const update = {};
+    if (name) update.name = name;
+    if (description !== undefined) update.description = description;
+    if (retailPricePerKg) update.retailPricePerKg = parseFloat(retailPricePerKg);
+    if (wholesalePricePerKg) update.wholesalePricePerKg = parseFloat(wholesalePricePerKg);
+    update.isBulkOffer = !!isBulkOffer;
+    
+    await db.collection('products').updateOne({ id: id }, { $set: update });
+  } else {
+    const products = readJson(PRODUCTS_FILE);
+    const product = products.find((p) => p.id === id);
+    if (product) {
+      if (name) product.name = name;
+      if (description !== undefined) product.description = description;
+      product.retailPricePerKg = parseFloat(retailPricePerKg) || product.retailPricePerKg;
+      product.wholesalePricePerKg = parseFloat(wholesalePricePerKg) || product.wholesalePricePerKg;
+      product.isBulkOffer = !!isBulkOffer;
+      writeJson(PRODUCTS_FILE, products);
     }
-    if (description !== undefined) {
-      product.description = description;
-    }
-    product.retailPricePerKg = parseFloat(retailPricePerKg) || product.retailPricePerKg;
-    product.wholesalePricePerKg = parseFloat(wholesalePricePerKg) || product.wholesalePricePerKg;
-    product.isBulkOffer = !!isBulkOffer;
-    writeJson(PRODUCTS_FILE, products);
   }
   res.redirect('/admin');
 });
 
-app.post('/admin/settings/contact', requireAdmin, (req, res) => {
+app.post('/admin/settings/contact', requireAdmin, async (req, res) => {
   const { phone, email, address, whatsappNumber, shopName, gstin } = req.body;
-  const current = readSettings();
-  const updated = {
-    ...current,
-    shopName: shopName || current.shopName || 'Casheew Nuts & Dry Fruits',
-    phone: phone || current.phone || '',
-    email: email || current.email || '',
-    address: address || current.address || '',
-    whatsappNumber: whatsappNumber || current.whatsappNumber || '',
-    gstin: gstin || current.gstin || ''
-  };
-  writeJson(SETTINGS_FILE, updated);
+  
+  if (db) {
+    const current = await db.collection('settings').findOne({}) || {};
+    const updated = {
+      ...current,
+      shopName: shopName || current.shopName || 'Casheew Nuts & Dry Fruits',
+      phone: phone || current.phone || '',
+      email: email || current.email || '',
+      address: address || current.address || '',
+      whatsappNumber: whatsappNumber || current.whatsappNumber || '',
+      gstin: gstin || current.gstin || ''
+    };
+    await db.collection('settings').replaceOne({}, updated, { upsert: true });
+  } else {
+    const current = readSettings();
+    const updated = {
+      ...current,
+      shopName: shopName || current.shopName || 'Casheew Nuts & Dry Fruits',
+      phone: phone || current.phone || '',
+      email: email || current.email || '',
+      address: address || current.address || '',
+      whatsappNumber: whatsappNumber || current.whatsappNumber || '',
+      gstin: gstin || current.gstin || ''
+    };
+    writeJson(SETTINGS_FILE, updated);
+  }
   res.redirect('/admin');
 });
 
@@ -363,17 +452,28 @@ app.post(
   '/admin/settings/payment-qr',
   requireAdmin,
   upload.single('qrImage'),
-  (req, res) => {
+  async (req, res) => {
     if (!req.file) {
       return res.redirect('/admin');
     }
-    const current = readSettings();
-    const updated = {
-      ...current,
-      paymentQrImage: '/uploads/' + req.file.filename,
-      paymentNote: req.body.paymentNote || current.paymentNote || ''
-    };
-    writeJson(SETTINGS_FILE, updated);
+    
+    if (db) {
+      const current = await db.collection('settings').findOne({}) || {};
+      const updated = {
+        ...current,
+        paymentQrImage: '/uploads/' + req.file.filename,
+        paymentNote: req.body.paymentNote || current.paymentNote || ''
+      };
+      await db.collection('settings').replaceOne({}, updated, { upsert: true });
+    } else {
+      const current = readSettings();
+      const updated = {
+        ...current,
+        paymentQrImage: '/uploads/' + req.file.filename,
+        paymentNote: req.body.paymentNote || current.paymentNote || ''
+      };
+      writeJson(SETTINGS_FILE, updated);
+    }
     res.redirect('/admin');
   }
 );
@@ -382,13 +482,13 @@ app.post(
   '/admin/products/new',
   requireAdmin,
   upload.single('image'),
-  (req, res) => {
+  async (req, res) => {
     const { name, description, retailPricePerKg, wholesalePricePerKg, isBulkOffer } =
       req.body;
     if (!name) {
       return res.redirect('/admin');
     }
-    const products = readJson(PRODUCTS_FILE);
+    
     const id = 'P' + (Date.now().toString().slice(-6));
     let imagePath = '/images/cashew-hero.png';
     if (req.file) {
@@ -403,8 +503,14 @@ app.post(
       wholesalePricePerKg: parseFloat(wholesalePricePerKg) || 0,
       isBulkOffer: !!isBulkOffer
     };
-    products.push(newProduct);
-    writeJson(PRODUCTS_FILE, products);
+
+    if (db) {
+      await db.collection('products').insertOne(newProduct);
+    } else {
+      const products = readJson(PRODUCTS_FILE);
+      products.push(newProduct);
+      writeJson(PRODUCTS_FILE, products);
+    }
     res.redirect('/admin');
   }
 );
@@ -413,36 +519,54 @@ app.post(
   '/admin/products/:id/image',
   requireAdmin,
   upload.single('image'),
-  (req, res) => {
+  async (req, res) => {
     const { id } = req.params;
     if (!req.file) {
       return res.redirect('/admin');
     }
-    const products = readJson(PRODUCTS_FILE);
-    const product = products.find((p) => p.id === id);
-    if (product) {
-      product.image = '/uploads/' + req.file.filename;
-      writeJson(PRODUCTS_FILE, products);
+    
+    if (db) {
+      await db.collection('products').updateOne(
+        { id: id },
+        { $set: { image: '/uploads/' + req.file.filename } }
+      );
+    } else {
+      const products = readJson(PRODUCTS_FILE);
+      const product = products.find((p) => p.id === id);
+      if (product) {
+        product.image = '/uploads/' + req.file.filename;
+        writeJson(PRODUCTS_FILE, products);
+      }
     }
     res.redirect('/admin');
   }
 );
 
-app.post('/admin/orders/:id/status', requireAdmin, (req, res) => {
+app.post('/admin/orders/:id/status', requireAdmin, async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
-  const orders = readJson(ORDERS_FILE);
-  const order = orders.find((o) => o.id === id);
-  if (order) {
-    order.status = status;
-    writeJson(ORDERS_FILE, orders);
+  if (db) {
+    await db.collection('orders').updateOne({ id: id }, { $set: { status: status } });
+  } else {
+    const orders = readJson(ORDERS_FILE);
+    const order = orders.find((o) => o.id === id);
+    if (order) {
+      order.status = status;
+      writeJson(ORDERS_FILE, orders);
+    }
   }
   res.redirect('/admin');
 });
 
-app.get('/admin/orders/daily.csv', requireAdmin, (req, res) => {
+app.get('/admin/orders/daily.csv', requireAdmin, async (req, res) => {
   const dateParam = req.query.date;
-  const orders = readJson(ORDERS_FILE);
+  let orders;
+  if (db) {
+    orders = await db.collection('orders').find().toArray();
+  } else {
+    orders = readJson(ORDERS_FILE);
+  }
+  
   const targetDate = dateParam || formatDate(new Date());
   const filtered = orders.filter(
     (o) => formatDate(new Date(o.createdAt)) === targetDate
