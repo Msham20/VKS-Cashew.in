@@ -8,17 +8,17 @@ const multer = require('multer');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const DATA_DIR = path.join(__dirname, 'data');
+// Use process.cwd() to correctly locate folders in Vercel serverless environment
+const DATA_DIR = path.join(process.cwd(), 'data');
 const PRODUCTS_FILE = path.join(DATA_DIR, 'products.json');
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
 const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
 
-const UPLOADS_DIR = path.join(__dirname, 'public', 'uploads');
+const UPLOADS_DIR = path.join(process.cwd(), 'public', 'uploads');
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'casheew123';
 
 const storage = multer.memoryStorage();
-
 
 const upload = multer({ storage });
 
@@ -133,9 +133,9 @@ function formatDate(date) {
 ensureDataFiles();
 
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(process.cwd(), 'views'));
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(process.cwd(), 'public')));
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(
@@ -472,4 +472,3 @@ if (require.main === module) {
 }
 
 module.exports = app;
-
